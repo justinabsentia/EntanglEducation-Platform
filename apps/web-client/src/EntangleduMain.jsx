@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Wallet, BrainCircuit, ChevronLeft, 
     Lock, Unlock, CheckCircle, Plus 
 } from 'lucide-react';
 
 // --- IMPORTS ---
-// Ensure these files exist in your 'components' and 'hooks' folders
 import HolographicLessonEnhanced from './components/HolographicLessonEnhanced.jsx';
 import QuantumLessonEnhanced from './components/QuantumLessonEnhanced.jsx';
 import ChaosLessonEnhanced from './components/ChaosLessonEnhanced.jsx';
 import { useLocalStorage } from './hooks/useLocalStorage.js';
 
+// EntangleduMain (updated): calls the Oracle backend to mint/verifiy certificates
 const EntangleduMain = () => {
     const [view, setView] = useState('menu');
     const [activeLessonId, setActiveLessonId] = useState(null);
@@ -18,8 +18,21 @@ const EntangleduMain = () => {
     // PERSISTENCE: State survives refresh using our custom hook
     const [tokens, setTokens] = useLocalStorage('entangledu_tokens', []);
     const [wallet, setWallet] = useLocalStorage('entangledu_wallet', null);
-    
+
     const [fusionSelected, setFusionSelected] = useState([]);
+
+    // UX / Oracle states
+    const [minting, setMinting] = useState(false);
+    const [oracleLastResponse, setOracleLastResponse] = useState(null);
+
+    // Oracle URL: prefer env var (support both CRA and Vite styles), fallback to localhost
+    const ORACLE_BASE = useMemo(() => {
+        return (
+            (typeof process !== 'undefined' && process.env && process.env.REACT_APP_ORACLE_URL) ||
+            (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ORACLE_URL) ||
+            'http://localhost:4000'
+        );
+    }, []);
 
     // Prevent accidental back swipe on mobile
     useEffect(() => {
@@ -86,22 +99,65 @@ const EntangleduMain = () => {
         }, 500);
     };
 
-    const handlePass = (lessonId, title, type) => {
-        // Mints a "Knowledge" token if not already owned
-        if (!tokens.find(t => t.id === lessonId)) {
-            const newToken = { 
-                id: lessonId, 
-                title, 
-                type, 
-                timestamp: Date.now(), 
-                kind: "KNOWLEDGE" 
+    // CALL ORACLE to request a signed certificate for passing a lesson
+    const handlePass = async (lessonId, title, type) => {
+        // If token exists, skip
+        if (tokens.find(t => t.id === lessonId)) return;
+
+        console.log(`[PASS] Requesting Proof of Knowledge for: ${title}...`);
+
+        setMinting(true);
+        setOracleLastResponse(null);
+
+        try {
+            const res = await fetch(`${ORACLE_BASE.replace(/\/+$/, '')}/api/mint`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    to: wallet || "0x_ANON_USER",
+                    lessonId,
+                    lessonTitle: title
+                })
+            });
+
+            const data = await res.json();
+            setOracleLastResponse(data || { status: res.status });
+
+            if (res.ok && data && data.success && data.certificate) {
+                const newCredential = {
+                    id: lessonId,
+                    title,
+                    type,
+                    kind: "VERIFIED_PROOF",
+                    hash: data.certificate.hash,
+                    signature: data.certificate.signature,
+                    timestamp: data.certificate.timestamp || Date.now()
+                };
+
+                setTokens(prev => [...prev, newCredential]);
+                console.log("[✓] Certificate received and stored.");
+            } else {
+                console.warn("Oracle denied minting request or returned no certificate.", data);
+                alert("Oracle denied minting request. You may retry later.");
+            }
+        } catch (err) {
+            console.error("Oracle Connection Failed:", err);
+            // Fallback: allow offline/local dev flow (unverified)
+            const offlineToken = {
+                id: lessonId,
+                title,
+                type,
+                timestamp: Date.now(),
+                kind: "UNVERIFIED_LOCAL"
             };
-            setTokens([...tokens, newToken]);
+            setTokens(prev => [...prev, offlineToken]);
+            setOracleLastResponse({ error: String(err) });
+        } finally {
+            setMinting(false);
         }
     };
 
     const toggleFusion = (id) => {
-        // Toggles selection for the fusion engine
         if (fusionSelected.includes(id)) {
             setFusionSelected(fusionSelected.filter(i => i !== id));
         } else if (fusionSelected.length < 2) {
@@ -110,7 +166,6 @@ const EntangleduMain = () => {
     };
 
     const fuseTokens = () => {
-        // Combines two tokens into a new "Fusion" token
         if (fusionSelected.length !== 2) return;
         
         const parent1 = lessons.find(l => l.id === fusionSelected[0]);
@@ -123,7 +178,7 @@ const EntangleduMain = () => {
             kind: "FUSION" 
         };
         
-        setTokens([...tokens, fusedToken]);
+        setTokens(prev => [...prev, fusedToken]);
         setFusionSelected([]);
     };
 
@@ -231,16 +286,36 @@ const EntangleduMain = () => {
                             {tokens.map(t => (
                                 <div key={t.id} className="bg-black/40 p-3 rounded border border-slate-800 flex items-center gap-3 animate-slide-in">
                                     <div className={`w-1.5 h-8 rounded-full ${t.kind === 'FUSION' ? 'bg-white shadow-[0_0_10px_white]' : 'bg-cyan-500'}`}/>
-                                    <div>
+                                    <div className="flex-1">
                                         <div className="text-sm font-bold text-slate-200">{t.title}</div>
-                                        <div className="text-[10px] text-slate-500 font-mono flex gap-2">
-                                            <span>{t.kind}</span>
+                                        <div className="text-[10px] text-slate-500 font-mono flex gap-2 items-center">
+                                            <span className={t.kind === 'VERIFIED_PROOF' ? "text-green-400" : "text-slate-500"}>
+                                                {t.kind}
+                                            </span>
                                             <span>•</span>
-                                            <span>{new Date(t.timestamp).toLocaleTimeString()}</span>
+                                            <span>{new Date(t.timestamp).toLocaleString()}</span>
+                                            {t.signature && (
+                                                <span className="ml-2 text-xs text-slate-400">{t.signature.substring(0, 16)}... </span>
+                                            )}
                                         </div>
+                                        {t.hash && (
+                                            <div className="text-[10px] text-slate-600 font-mono truncate mt-1">Hash: {t.hash}</div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
+
+                            {/* Oracle status / debug info (small) */}
+                            {oracleLastResponse && (
+                                <div className="mt-4 text-[10px] text-slate-400 font-mono bg-black/20 p-2 rounded">
+                                    <div className="font-bold text-xs text-slate-200 mb-1">Oracle Last Response</div>
+                                    <pre className="whitespace-pre-wrap">{JSON.stringify(oracleLastResponse, null, 2)}</pre>
+                                </div>
+                            )}
+
+                            {minting && (
+                                <div className="mt-3 text-xs text-slate-300">Contacting Oracle to mint certificate...</div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -292,6 +367,7 @@ const EntangleduMain = () => {
                     <activeLessonConfig.comp 
                         isCompleted={!!tokens.find(t => t.id === activeLessonConfig.id)}
                         onPass={() => handlePass(activeLessonConfig.id, activeLessonConfig.title, activeLessonConfig.type)}
+                        oracleState={{ minting, lastResponse: oracleLastResponse }}
                     />
                 </div>
             )}
