@@ -21,6 +21,32 @@ const EntangleduMain = () => {
     
     const [fusionSelected, setFusionSelected] = useState([]);
 
+    // Prevent accidental back swipe on mobile
+    useEffect(() => {
+        const handleTouchStart = (e) => {
+            if (view === 'lesson' && e.touches[0].clientX < 20) {
+                e.preventDefault();
+            }
+        };
+        const handlePopState = () => {
+            if (view === 'lesson') {
+                setView('menu');
+                setActiveLessonId(null);
+            }
+        };
+
+        if (view === 'lesson') {
+            window.history.pushState(null, '', window.location.href);
+            window.addEventListener('touchstart', handleTouchStart, { passive: false });
+            window.addEventListener('popstate', handlePopState);
+        }
+
+        return () => {
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [view]);
+
     // Module Configuration
     const lessons = [
         { 
