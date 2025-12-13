@@ -14,15 +14,26 @@ app.use(express.json());
 const MINT_LOG = [];
 
 // --- PROTOCOL WALLET ---
-// effectively the "Private Key" of the University
+// Default key for dev: 0x0123...
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "0x0123456789012345678901234567890123456789012345678901234567890123"; 
 const wallet = new ethers.Wallet(PRIVATE_KEY);
+
+console.log("[ENTANGLEDU ORACLE] Initialized");
+console.log(`[SIGNER ADDRESS] ${wallet.address}`);
 
 app.get('/api/health', (req, res) => res.json({
     status: 'active', 
     signer: wallet.address,
     mints: MINT_LOG.length 
 }));
+
+// [VERIFICATION] Public endpoint to audit issued certificates
+app.get('/api/certificates', (req, res) => {
+    res.json({
+        total: MINT_LOG.length,
+        certificates: MINT_LOG
+    });
+});
 
 app.post('/api/mint', async (req, res) => {
   const { to, lessonId, lessonTitle } = req.body;
@@ -35,7 +46,6 @@ app.post('/api/mint', async (req, res) => {
       console.log(`[ORACLE] Verifying completion for ${lessonId} by ${to}...`);
       
       // 1. GENERATE PAYLOAD
-      // We create a hash representing the certificate
       const payload = ethers.utils.defaultAbiCoder.encode(
           ["string", "string", "uint256"],
           [lessonTitle, "ENTANGLEDU_V1", Date.now()]
@@ -43,7 +53,6 @@ app.post('/api/mint', async (req, res) => {
       const payloadHash = ethers.utils.keccak256(payload);
 
       // 2. SIGN PAYLOAD
-      // This signature proves the backend authorized this specific achievement
       const signature = await wallet.signMessage(ethers.utils.arrayify(payloadHash));
 
       const certificate = {
@@ -57,9 +66,9 @@ app.post('/api/mint', async (req, res) => {
       };
 
       MINT_LOG.push(certificate);
+      console.log(`[✓] Certificate issued: ${lessonId}`);
 
       // 3. RETURN PROOF
-      // The client receives this and stores it. In the future, they submit this to the contract.
       return res.json({ 
           success: true, 
           certificate 
@@ -72,4 +81,4 @@ app.post('/api/mint', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`[ENTANGLEDU] Backend Oracle running on ${PORT}`));
+app.listen(PORT, () => console.log(`[ENTANGLEDU] Backend Oracle running on port ${PORT}`));

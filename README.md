@@ -1,84 +1,66 @@
-# Entangledu: Decentralized Knowledge Protocol
+# EntanglEducation Platform
 
-**A Web3-native educational platform featuring high-fidelity physics simulations and sovereign credentialing.**
+**Chief Protocol Architect:** EntangledU
+**Status:** v2.0 (Mobile-First PWA + Oracle)
 
-This repository hosts the **Entangledu** ecosystem, a "Proof of Knowledge" platform that combines interactive HTML5 Canvas simulations with a decentralized identity architecture.
+EntanglEducation is a decentralized learning platform that combines interactive physics simulations with cryptographic proofs of knowledge.
 
-## 🌌 Modules Implemented
+## 🏗 Architecture v2.0
 
-The current release (v1.1.0) includes three "Enhanced" interactive laboratories:
+The platform has migrated from a monolith to a modular, Web3-native architecture:
 
-### 1. Holographic Principle (AdS/CFT)
-* **Visual:** A rotating 3D Fibonacci Sphere projected onto a 2D canvas using perspective projection.
-* **Physics:** Simulates the "Bulk" vs. "Boundary" correspondence.
-* **Tech:** Custom particle engine with depth sorting (`z-scale`) and sine-wave data shimmering.
+* **📱 Client (`apps/web-client`)**: 
+    * React 18 + Vite
+    * Mobile-First PWA (Installable, Offline Support)
+    * Tailwind CSS for responsive design
+    * Interacts with the Oracle for verification
 
-### 2. Quantum Tunneling
-* **Visual:** Real-time wave function visualization responding to user energy input.
-* **Physics:** Finite difference method simulating a particle encountering a potential barrier ($E < V$).
-* **Tech:** DPI-aware rendering for crisp lines on Retina displays.
+* **🔮 Oracle (`backend`)**:
+    * Express.js + Ethers.js
+    * Acts as the "University Registrar"
+    * Cryptographically signs certificates using a private key
+    * Auditable via `/api/certificates`
 
-### 3. Lorenz Attractor (Chaos Theory)
-* **Visual:** Continuous ribbon rendering of the strange attractor.
-* **Physics:** Solves the Lorenz differential equations ($\rho, \sigma, \beta$) in real-time.
-* **Tech:** Memoized physics engine (`useMemo`) separating calculation from rendering for 60fps performance.
+* **⛓️ Chain (`contracts`)**:
+    * Hardhat environment
+    * `SimpleNFT.sol` (ERC721) for on-chain credentials
+    * Local devnet ready
 
----
+## 🚀 Getting Started
 
-## 🏗️ Architecture
-
-The repository follows a monorepo structure to separate the Frontend (Brain) from the Smart Contracts (Chain).
-
-```text
-EntanglEducation-Platform/
-├── apps/
-│   └── web-client/          # React + Vite + TailwindCSS Application
-│       ├── src/
-│       │   ├── components/  # Physics Engines (Canvas API)
-│       │   ├── hooks/       # Persistence Logic (useLocalStorage)
-│       │   └── EntangleduMain.jsx
-└── contracts/               # (Upcoming) Solidity/Hardhat Environment
-```
-
----
-
-## 🚀 Installation & Setup
-
-Because this is a monorepo, you must install dependencies inside the client application folder.
-
-### 1. Clone the repository
+### 1. Ignite the Oracle (Backend)
 ```bash
-git clone https://github.com/justinabsentia/EntanglEducation-Platform.git
-cd EntanglEducation-Platform
+cd backend
+npm install
+node index.js
+# Runs on http://localhost:4000
 ```
 
-### 2. Install Dependencies
-Navigate to the web client directory before installing:
+### 2. Launch the Client (Frontend)
 ```bash
 cd apps/web-client
 npm install
-```
-
-### 3. Run the Simulation
-Start the local development server:
-```bash
 npm run dev
+# Runs on http://localhost:5173
 ```
 
-> Open the local link (usually http://localhost:5173) to launch the platform.
+Note: Open the network URL (e.g., http://192.168.x.x:5173) on your mobile phone to test PWA features.
 
----
+### 3. Deploy the Chain (Optional)
+```bash
+cd contracts
+npm install
+npx hardhat node
+# In a new terminal:
+npx hardhat run --network localhost scripts/deploy.js
+```
 
-## 🛠️ Tech Stack
+🔒 Security
+ * Proof of Knowledge: Certificates are signed by the backend Oracle only after lesson completion logic is verified.
+ * Verifiable: The client stores the cryptographic signature (r,s,v) which can be verified on-chain.
+📱 Mobile Features
+ * PWA: "Add to Home Screen" enabled.
+ * Offline Mode: Service Worker caches assets for offline learning.
+ * Touch: Optimized UI for mobile interaction.
 
-* **Frontend Framework:** React 18 + Vite 5
-* **Styling:** TailwindCSS 3.3
-* **Graphics:** Native HTML5 Canvas API (No WebGL libraries required)
-* **Icons:** Lucide React
-* **State Management:** Local-First Persistence (Simulating Wallet State)
-
----
-
-## 📜 License
-
-MIT License. Open source for educational use.
+<!-- end -->
