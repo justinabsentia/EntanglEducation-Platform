@@ -6,37 +6,10 @@ import {
 
 // --- IMPORTS ---
 // Ensure these files exist in your 'components' and 'hooks' folders
-import HolographicLessonEnhanced from '../components/HolographicLessonEnhanced.jsx';
-import { useLocalStorage } from '../hooks/useLocalStorage.js';
-
-// Placeholder components for missing lessons
-const QuantumLessonEnhanced = ({ isCompleted, onPass }) => (
-  <div className="flex items-center justify-center h-screen">
-    <div className="text-center">
-      <h2 className="text-4xl font-bold text-purple-400 mb-4">Quantum Tunneling Lab</h2>
-      <p className="text-slate-400 mb-8">Coming soon...</p>
-      {!isCompleted && (
-        <button onClick={onPass} className="px-6 py-3 bg-purple-600 rounded-lg hover:bg-purple-700">
-          Complete Lesson
-        </button>
-      )}
-    </div>
-  </div>
-);
-
-const ChaosLessonEnhanced = ({ isCompleted, onPass }) => (
-  <div className="flex items-center justify-center h-screen">
-    <div className="text-center">
-      <h2 className="text-4xl font-bold text-yellow-400 mb-4">Lorenz Attractor Lab</h2>
-      <p className="text-slate-400 mb-8">Coming soon...</p>
-      {!isCompleted && (
-        <button onClick={onPass} className="px-6 py-3 bg-yellow-600 rounded-lg hover:bg-yellow-700">
-          Complete Lesson
-        </button>
-      )}
-    </div>
-  </div>
-);
+import HolographicLessonEnhanced from './components/HolographicLessonEnhanced.jsx';
+import QuantumLessonEnhanced from './components/QuantumLessonEnhanced.jsx';
+import ChaosLessonEnhanced from './components/ChaosLessonEnhanced.jsx';
+import { useLocalStorage } from './hooks/useLocalStorage.js';
 
 const EntangleduMain = () => {
     const [view, setView] = useState('menu');
