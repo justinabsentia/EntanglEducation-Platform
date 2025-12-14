@@ -1,0 +1,113 @@
+{
+  "lessons": [
+    {
+      "lessonId": "chaos-001",
+      "title": "Lorenz Attractor",
+      "standardID": "HS-PS2-1",
+      "conceptTag": "Forces and Motion",
+      "difficulty": "High School",
+      "description": "Explore chaotic systems and the butterfly effect through the Lorenz attractor equations",
+      "physicsConfig": {
+        "gravity": [0, -9.8, 0],
+        "timeScale": 1.0,
+        "debug": false
+      },
+      "learningObjectives": [
+        "Understand deterministic chaos",
+        "Analyze system sensitivity to initial conditions",
+        "Visualize strange attractors in phase space"
+      ]
+    },
+    {
+      "lessonId": "quantum-001",
+      "title": "Quantum Tunneling",
+      "standardID": "HS-PS4-3",
+      "conceptTag": "Wave Properties and Quantum Mechanics",
+      "difficulty": "University",
+      "description": "Investigate quantum tunneling phenomena and wave-particle duality",
+      "physicsConfig": {
+        "gravity": [0, 0, 0],
+        "timeScale": 0.5,
+        "debug": false
+      },
+      "learningObjectives": [
+        "Understand quantum mechanical tunneling",
+        "Explore wave function behavior",
+        "Apply Schrödinger equation concepts"
+      ]
+    },
+    {
+      "lessonId": "holographic-001",
+      "title": "Holographic Principle",
+      "standardID": "HS-PS2-4",
+      "conceptTag": "Information Theory and Thermodynamics",
+      "difficulty": "Research",
+      "description": "Explore the holographic principle and AdS/CFT correspondence in theoretical physics",
+      "physicsConfig": {
+        "gravity": [0, -9.8, 0],
+        "timeScale": 1.0,
+        "debug": false
+      },
+      "learningObjectives": [
+        "Understand holographic duality",
+        "Explore black hole thermodynamics",
+        "Investigate information conservation"
+      ]
+    },
+    {
+      "lessonId": "forces-001",
+      "title": "Newton's Laws of Motion",
+      "standardID": "HS-PS2-1",
+      "conceptTag": "Forces and Motion",
+      "difficulty": "High School",
+      "description": "Interactive exploration of Newton's three laws through simulated physics experiments",
+      "physicsConfig": {
+        "gravity": [0, -9.8, 0],
+        "timeScale": 1.0,
+        "debug": false
+      },
+      "learningObjectives": [
+        "Apply Newton's first law (inertia)",
+        "Calculate forces using F=ma",
+        "Analyze action-reaction pairs"
+      ]
+    },
+    {
+      "lessonId": "gravity-001",
+      "title": "Gravitational Fields",
+      "standardID": "HS-PS2-4",
+      "conceptTag": "Gravitational Forces",
+      "difficulty": "High School",
+      "description": "Visualize and manipulate gravitational fields to understand universal gravitation",
+      "physicsConfig": {
+        "gravity": [0, -9.8, 0],
+        "timeScale": 1.0,
+        "debug": true
+      },
+      "learningObjectives": [
+        "Understand inverse square law",
+        "Calculate gravitational force",
+        "Visualize field lines"
+      ]
+    }
+  ],
+  "difficultyLevels": {
+    "High School": {
+      "description": "Introductory physics concepts aligned with high school standards",
+      "prerequisites": "Basic algebra and trigonometry"
+    },
+    "University": {
+      "description": "Advanced physics requiring calculus and linear algebra",
+      "prerequisites": "Calculus I-III, Linear Algebra"
+    },
+    "Research": {
+      "description": "Cutting-edge theoretical physics topics",
+      "prerequisites": "Graduate-level physics and mathematics"
+    }
+  },
+  "standardsMapping": {
+    "HS-PS2-1": "Analyze data to support the claim that Newton's second law of motion describes the mathematical relationship among the net force on a macroscopic object, its mass, and its acceleration",
+    "HS-PS2-4": "Use mathematical representations of Newton's Law of Gravitation and Coulomb's Law to describe and predict the gravitational and electrostatic forces between objects",
+    "HS-PS4-3": "Evaluate the claims, evidence, and reasoning behind the idea that electromagnetic radiation can be described either by a wave model or a particle model"
+  }
+}
