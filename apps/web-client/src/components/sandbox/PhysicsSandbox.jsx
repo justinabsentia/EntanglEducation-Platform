@@ -84,19 +84,27 @@ const PhysicsSandbox = ({
         const newTime = prev.time + deltaTime;
         
         // Apply gravity to objects (simple physics simulation)
-        const updatedObjects = prev.objects.map(obj => ({
-          ...obj,
-          velocity: {
+        const updatedObjects = prev.objects.map(obj => {
+          // Calculate new velocity first
+          const newVelocity = {
             x: obj.velocity.x,
             y: obj.velocity.y + config.gravity[1] * deltaTime,
             z: obj.velocity.z + config.gravity[2] * deltaTime
-          },
-          position: {
-            x: obj.position.x + obj.velocity.x * deltaTime,
-            y: obj.position.y + obj.velocity.y * deltaTime,
-            z: obj.position.z + obj.velocity.z * deltaTime
-          }
-        }));
+          };
+          
+          // Then update position using the new velocity
+          const newPosition = {
+            x: obj.position.x + newVelocity.x * deltaTime,
+            y: obj.position.y + newVelocity.y * deltaTime,
+            z: obj.position.z + newVelocity.z * deltaTime
+          };
+          
+          return {
+            ...obj,
+            velocity: newVelocity,
+            position: newPosition
+          };
+        });
 
         return {
           ...prev,
@@ -130,7 +138,7 @@ const PhysicsSandbox = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [config, showForceLines, physicsState.time]);
+  }, [config, showForceLines]);
 
   // Render force lines (vector field visualization)
   const renderForceLines = (ctx, width, height) => {

@@ -1,8 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "EntanglEducation NGSS Curriculum Schema",
-  "description": "Standard JSON schema for lesson configuration to ensure school compliance with NGSS (Next Generation Science Standards)",
-  "type": "object",
   "lessons": [
     {
       "lessonId": "chaos-001",
