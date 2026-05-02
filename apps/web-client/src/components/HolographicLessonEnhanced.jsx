@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ScanFace } from 'lucide-react';
+import { getQuizOptionClass } from './getQuizOptionClass.js';
 
 const HolographicLessonEnhanced = ({ onPass, isCompleted, modeLabel = 'Spatial XR' }) => {
   const [selectedOpt, setSelectedOpt] = useState(null);
@@ -154,15 +155,13 @@ const HolographicLessonEnhanced = ({ onPass, isCompleted, modeLabel = 'Spatial X
               key={i}
               disabled={isCompleted}
               onClick={() => handleAnswer(i)}
-              className={`rounded border p-2 text-[10px] font-mono uppercase ${
-                isCompleted && i === 1
-                  ? 'border-green-500 bg-green-500/20 text-green-400'
-                  : selectedOpt === i && i === 1 && scanDepth >= 70
-                    ? 'border-green-500 bg-green-500/20 text-green-300'
-                    : selectedOpt === i
-                      ? 'border-red-500 bg-red-500/20 text-red-400'
-                      : 'border-slate-700 text-slate-400 hover:border-cyan-400'
-              }`}
+              className={`rounded border p-2 text-[10px] font-mono uppercase ${getQuizOptionClass({
+                isCompleted,
+                isSelected: selectedOpt === i,
+                isCorrect: i === 1,
+                isReady: scanDepth >= 70,
+                idleClass: 'border-slate-700 text-slate-400 hover:border-cyan-400'
+              })}`}
             >
               {opt}
             </button>

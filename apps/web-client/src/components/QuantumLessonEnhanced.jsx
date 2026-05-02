@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Zap } from 'lucide-react';
+import { getQuizOptionClass } from './getQuizOptionClass.js';
 
 const quizOptions = [
   'The particle slows because the barrier adds friction.',
@@ -135,15 +136,13 @@ const QuantumLessonEnhanced = ({ onPass, isCompleted, modeLabel = 'Spatial XR', 
               key={option}
               disabled={isCompleted}
               onClick={() => handleAnswer(index)}
-              className={`rounded border p-3 text-left text-[11px] ${
-                isCompleted && index === 1
-                  ? 'border-green-500 bg-green-500/20 text-green-300'
-                  : selectedAnswer === index && index === 1 && isCalibrated
-                    ? 'border-green-500 bg-green-500/20 text-green-300'
-                    : selectedAnswer === index
-                      ? 'border-red-500 bg-red-500/20 text-red-300'
-                      : 'border-slate-700 text-slate-300 hover:border-purple-400'
-              }`}
+              className={`rounded border p-3 text-left text-[11px] ${getQuizOptionClass({
+                isCompleted,
+                isSelected: selectedAnswer === index,
+                isCorrect: index === 1,
+                isReady: isCalibrated,
+                idleClass: 'border-slate-700 text-slate-300 hover:border-purple-400'
+              })}`}
             >
               {option}
             </button>

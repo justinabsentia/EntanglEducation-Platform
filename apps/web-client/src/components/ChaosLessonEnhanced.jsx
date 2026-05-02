@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { RotateCcw } from 'lucide-react';
+import { getQuizOptionClass } from './getQuizOptionClass.js';
 
 const quizOptions = [
   'The system becomes fully periodic, so all paths collapse into one orbit.',
@@ -151,15 +152,13 @@ const ChaosLessonEnhanced = ({ onPass, isCompleted, modeLabel = 'Spatial XR', ta
               key={option}
               disabled={isCompleted}
               onClick={() => handleAnswer(index)}
-              className={`rounded border p-3 text-left text-[11px] ${
-                isCompleted && index === 2
-                  ? 'border-green-500 bg-green-500/20 text-green-300'
-                  : selectedAnswer === index && index === 2 && isCalibrated
-                    ? 'border-green-500 bg-green-500/20 text-green-300'
-                    : selectedAnswer === index
-                      ? 'border-red-500 bg-red-500/20 text-red-300'
-                      : 'border-slate-700 text-slate-300 hover:border-yellow-400'
-              }`}
+              className={`rounded border p-3 text-left text-[11px] ${getQuizOptionClass({
+                isCompleted,
+                isSelected: selectedAnswer === index,
+                isCorrect: index === 2,
+                isReady: isCalibrated,
+                idleClass: 'border-slate-700 text-slate-300 hover:border-yellow-400'
+              })}`}
             >
               {option}
             </button>
