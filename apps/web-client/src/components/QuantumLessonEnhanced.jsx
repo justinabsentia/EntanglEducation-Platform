@@ -1,30 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Zap } from 'lucide-react';
 
-const QuantumLessonEnhanced = ({ onPass, isCompleted, targetEnergy = 45, barrierHeight = 50 }) => {
+const quizOptions = [
+  'The particle slows because the barrier adds friction.',
+  'The wavefunction amplitude decays inside the barrier but still has a non-zero transmission chance.',
+  'Tunneling only works when energy is higher than the barrier.',
+  'The particle vanishes and reappears without any probability distribution.'
+];
+
+const QuantumLessonEnhanced = ({ onPass, isCompleted, modeLabel = 'Spatial XR', targetEnergy = 45, barrierHeight = 50 }) => {
   const [energy, setEnergy] = useState(20);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [feedback, setFeedback] = useState('Tune the wave into the green tunneling band, then answer the checkpoint.');
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    if (!isCompleted && energy < barrierHeight && energy >= targetEnergy - 5) onPass();
-  }, [energy, isCompleted, onPass, barrierHeight, targetEnergy]);
+  const isCalibrated = energy < barrierHeight && Math.abs(energy - targetEnergy) <= 5;
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
     const ctx = canvas.getContext('2d');
-    let time = 0, animId;
+    let time = 0;
+    let animId;
 
     const handleResize = () => {
       const dpr = window.devicePixelRatio || 1;
       canvas.width = container.clientWidth * dpr;
       canvas.height = container.clientHeight * dpr;
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       canvas.style.width = `${container.clientWidth}px`;
       canvas.style.height = `${container.clientHeight}px`;
     };
+
     handleResize();
     window.addEventListener('resize', handleResize);
 
@@ -38,17 +47,15 @@ const QuantumLessonEnhanced = ({ onPass, isCompleted, targetEnergy = 45, barrier
       ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, width, height);
 
-      // Barrier
       ctx.fillStyle = 'rgba(239, 68, 68, 0.1)';
       ctx.fillRect(bx, cy - 50, 100, 100);
       ctx.strokeStyle = '#ef4444';
       ctx.lineWidth = 2;
       ctx.strokeRect(bx, cy - 50, 100, 100);
 
-      // Wave
       ctx.beginPath();
       if (energy > barrierHeight) ctx.strokeStyle = '#ef4444';
-      else if (Math.abs(energy - targetEnergy) <= 5) ctx.strokeStyle = '#22c55e';
+      else if (isCalibrated) ctx.strokeStyle = '#22c55e';
       else ctx.strokeStyle = '#eab308';
       ctx.lineWidth = 3;
 
@@ -69,28 +76,80 @@ const QuantumLessonEnhanced = ({ onPass, isCompleted, targetEnergy = 45, barrier
       ctx.stroke();
       animId = requestAnimationFrame(render);
     };
+
     render();
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animId);
     };
-  }, [energy, barrierHeight, targetEnergy]);
+  }, [energy, barrierHeight, isCalibrated]);
+
+  const handleAnswer = (index) => {
+    setSelectedAnswer(index);
+
+    if (isCompleted) {
+      return;
+    }
+
+    if (!isCalibrated) {
+      setFeedback('Stabilize the wave in the green tunneling band before submitting proof.');
+      return;
+    }
+
+    if (index === 1) {
+      setFeedback('Correct. A non-zero transmitted amplitude is exactly why tunneling is possible.');
+      onPass();
+      return;
+    }
+
+    setFeedback('Not yet. Tunneling happens even below the barrier because the wave retains a finite transmitted amplitude.');
+  };
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden rounded-xl border border-slate-800">
       <canvas ref={canvasRef} className="block w-full h-full" />
-      <div className="absolute bottom-6 left-6 right-6 md:w-80 bg-slate-900/90 border border-slate-700 p-5 rounded-xl backdrop-blur-md">
-        <h3 className="text-purple-400 font-bold mb-3 flex items-center gap-2">
-          <Zap size={16} /> Wave Tuner
+      <div className="absolute bottom-6 left-6 right-6 max-w-md rounded-xl border border-slate-700 bg-slate-900/90 p-5 backdrop-blur-md">
+        <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-slate-500">{modeLabel}</div>
+        <h3 className="mt-2 mb-3 flex items-center gap-2 font-bold text-purple-400">
+          <Zap size={16} /> Wave Tuner + Quiz Gate
         </h3>
+        <div className="mb-3 flex justify-between text-xs font-mono text-slate-300">
+          <span>Energy calibration</span>
+          <span className={isCalibrated ? 'text-green-400' : 'text-slate-400'}>{energy}</span>
+        </div>
         <input
           type="range"
           min="0"
           max="100"
           value={energy}
-          onChange={(e) => setEnergy(parseInt(e.target.value))}
-          className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+          onChange={(e) => setEnergy(parseInt(e.target.value, 10))}
+          className="mb-4 h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-700 accent-purple-500"
         />
+
+        <p className="mb-3 text-xs text-slate-300">
+          Why can the particle still appear beyond the barrier when its energy is below the barrier height?
+        </p>
+        <div className="grid gap-2">
+          {quizOptions.map((option, index) => (
+            <button
+              key={option}
+              disabled={isCompleted}
+              onClick={() => handleAnswer(index)}
+              className={`rounded border p-3 text-left text-[11px] ${
+                isCompleted && index === 1
+                  ? 'border-green-500 bg-green-500/20 text-green-300'
+                  : selectedAnswer === index && index === 1 && isCalibrated
+                    ? 'border-green-500 bg-green-500/20 text-green-300'
+                    : selectedAnswer === index
+                      ? 'border-red-500 bg-red-500/20 text-red-300'
+                      : 'border-slate-700 text-slate-300 hover:border-purple-400'
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 text-[11px] text-slate-400">{feedback}</div>
       </div>
     </div>
   );
