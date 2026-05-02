@@ -123,7 +123,7 @@ const QuantumLessonEnhanced = ({ onPass, isCompleted, modeLabel = 'Spatial XR', 
           min="0"
           max="100"
           value={energy}
-          onChange={(e) => setEnergy(parseInt(e.target.value, 10))}
+          onChange={(e) => setEnergy(parseInt(e.target.value))}
           className="mb-4 h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-700 accent-purple-500"
         />
 

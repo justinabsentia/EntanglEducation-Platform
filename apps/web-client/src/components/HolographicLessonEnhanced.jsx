@@ -143,7 +143,7 @@ const HolographicLessonEnhanced = ({ onPass, isCompleted, modeLabel = 'Spatial X
             min="0"
             max="100"
             value={scanDepth}
-            onChange={(e) => setScanDepth(parseInt(e.target.value, 10))}
+            onChange={(e) => setScanDepth(parseInt(e.target.value))}
             className="w-full cursor-pointer appearance-none rounded-lg bg-slate-700 accent-cyan-500"
           />
         </div>
