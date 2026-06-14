@@ -1,4 +1,4 @@
-# EntanglEducation Platform
+# # EntanglEducation Platform
 
 **Chief Protocol Architect:** EntangledU
 **Status:** v2.0 (Mobile-First PWA + Oracle)
